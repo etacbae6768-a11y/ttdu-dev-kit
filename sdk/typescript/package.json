@@ -11,6 +11,8 @@
   "engines": { "node": ">=18" },
   "homepage": "https://toolsthatdontupload.com/docs/sdk/",
   "keywords": ["hwp", "hwpx", "pdf", "flows", "toolsthatdontupload", "openapi"],
+  "devDependencies": { "typescript": "^5.9.0" },
   "scripts": { "generate": "openapi-ts", "build": "tsc -p tsconfig.json" }
 }
+
 
