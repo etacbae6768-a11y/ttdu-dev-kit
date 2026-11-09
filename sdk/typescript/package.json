@@ -1,0 +1,16 @@
+{
+  "name": "toolsthatdontupload",
+  "version": "0.1.0",
+  "description": "SDK for the Tools That Don't Upload file flows and HWP/HWPX API (hosted, or an on-premises runner).",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": { ".": { "types": "./dist/index.d.ts", "import": "./dist/index.js" } },
+  "files": ["dist", "README.md", "LICENSE"],
+  "engines": { "node": ">=18" },
+  "homepage": "https://toolsthatdontupload.com/docs/sdk/",
+  "keywords": ["hwp", "hwpx", "pdf", "flows", "toolsthatdontupload", "openapi"],
+  "scripts": { "generate": "openapi-ts", "build": "tsc -p tsconfig.json" }
+}
+

@@ -1,0 +1,19 @@
+[build-system]
+requires = ["hatchling>=1.24"]
+build-backend = "hatchling.build"
+
+[project]
+name = "toolsthatdontupload"
+version = "0.1.0"
+description = "SDK for the Tools That Don't Upload file flows and HWP/HWPX API (hosted, or an on-premises runner)."
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.11"
+dependencies = ["httpx2>=2.16", "attrs>=23"]
+keywords = ["hwp", "hwpx", "pdf", "flows", "openapi"]
+
+[project.urls]
+Homepage = "https://toolsthatdontupload.com/docs/sdk/"
+
+[tool.hatch.build.targets.wheel]
+packages = ["toolsthatdontupload"]

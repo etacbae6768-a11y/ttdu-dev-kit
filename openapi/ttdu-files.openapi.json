@@ -1,0 +1,192 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Tools That Don't Upload — file flows and HWP API",
+    "version": "1.0.0",
+    "description": "Run saved file flows (ttdu.flow/v1) and convert Korean HWP/HWPX documents. Files you send to the hosted API go to our server (a Cloudflare Worker) and are processed in memory for that one request; we do not store the files, the results or the flow. One request counts as one file call (20 free a day with a free key, then 60 credits; 20 a day per IP address without a key). Up to 20 files and 15 MB in total per request.",
+    "contact": { "name": "Tools That Don't Upload", "url": "https://toolsthatdontupload.com/support/", "email": "hello@toolsthatdontupload.com" },
+    "license": { "name": "MIT (this description)", "url": "https://opensource.org/license/mit" }
+  },
+  "externalDocs": { "description": "Flows API", "url": "https://toolsthatdontupload.com/docs/flows/" },
+  "servers": [
+    { "url": "https://toolsthatdontupload.com", "description": "Hosted API (files are sent to our server, processed in memory, not stored)" },
+    { "url": "http://127.0.0.1:8790", "description": "On-premises runner for business customers (files stay on that computer)" }
+  ],
+  "security": [ {}, { "ApiKeyAuth": [] } ],
+  "tags": [
+    { "name": "flows", "description": "Run a saved flow (one or more tool steps)" },
+    { "name": "hwp", "description": "Korean HWP 5.x and HWPX documents" }
+  ],
+  "paths": {
+    "/v1/flows/run": {
+      "post": {
+        "tags": ["flows"],
+        "operationId": "runFlow",
+        "summary": "Run a saved flow on files",
+        "description": "Send the flow (ttdu.flow/v1, as exported from https://workflows.toolsthatdontupload.com/) and the files. To run a single tool, send a flow with one step. Steps that need a browser (for example image.batch) answer 422 on the hosted API.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": { "$ref": "#/components/schemas/FlowRunMultipart" },
+              "encoding": { "files": { "contentType": "application/octet-stream" } }
+            },
+            "application/json": { "schema": { "$ref": "#/components/schemas/FlowRunJson" } }
+          }
+        },
+        "responses": {
+          "200": { "description": "The flow finished.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/FlowRunResult" } } } },
+          "400": { "$ref": "#/components/responses/Problem" },
+          "401": { "$ref": "#/components/responses/Problem" },
+          "402": { "$ref": "#/components/responses/Problem" },
+          "413": { "$ref": "#/components/responses/Problem" },
+          "415": { "$ref": "#/components/responses/Problem" },
+          "422": { "$ref": "#/components/responses/Problem" },
+          "429": { "$ref": "#/components/responses/Problem" }
+        }
+      }
+    },
+    "/v1/hwp/text": {
+      "post": {
+        "tags": ["hwp"], "operationId": "hwpToText", "summary": "HWP/HWPX to text and structured blocks",
+        "requestBody": { "$ref": "#/components/requestBodies/HwpFile" },
+        "responses": {
+          "200": { "description": "Text, blocks in reading order and counts.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/HwpTextResult" } } } },
+          "400": { "$ref": "#/components/responses/Problem" }, "413": { "$ref": "#/components/responses/Problem" }, "422": { "$ref": "#/components/responses/Problem" }, "429": { "$ref": "#/components/responses/Problem" }
+        }
+      }
+    },
+    "/v1/hwp/markdown": {
+      "post": {
+        "tags": ["hwp"], "operationId": "hwpToMarkdown", "summary": "HWP/HWPX to Markdown",
+        "requestBody": { "$ref": "#/components/requestBodies/HwpFile" },
+        "responses": {
+          "200": { "description": "Markdown (paragraphs; tables as Markdown tables).", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/HwpMarkdownResult" } } } },
+          "400": { "$ref": "#/components/responses/Problem" }, "413": { "$ref": "#/components/responses/Problem" }, "422": { "$ref": "#/components/responses/Problem" }, "429": { "$ref": "#/components/responses/Problem" }
+        }
+      }
+    },
+    "/v1/hwp/docx": {
+      "post": {
+        "tags": ["hwp"], "operationId": "hwpToDocx", "summary": "HWP/HWPX to an editable DOCX (paragraphs and tables)",
+        "requestBody": { "$ref": "#/components/requestBodies/HwpFile" },
+        "responses": {
+          "200": { "description": "The DOCX in outputs[0].", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/HwpDocxResult" } } } },
+          "400": { "$ref": "#/components/responses/Problem" }, "413": { "$ref": "#/components/responses/Problem" }, "422": { "$ref": "#/components/responses/Problem" }, "429": { "$ref": "#/components/responses/Problem" }
+        }
+      }
+    },
+    "/v1/hwp/pdf": {
+      "post": {
+        "tags": ["hwp"], "operationId": "hwpToPdf", "summary": "Not available on the server (501 browser_only)",
+        "description": "Page rendering needs fonts and runs in the browser: https://dagotools.com/en/tools/hwp-to-pdf/ . Always answers 501 on the hosted API, before any quota is used.",
+        "requestBody": { "$ref": "#/components/requestBodies/HwpFile" },
+        "responses": { "501": { "$ref": "#/components/responses/Problem" } }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "ApiKeyAuth": { "type": "apiKey", "in": "header", "name": "X-API-Key", "description": "Optional on the hosted API (free key: https://toolsthatdontupload.com/api-keys/). Required on an on-premises runner (local-api-key.txt)." }
+    },
+    "requestBodies": {
+      "HwpFile": {
+        "required": true,
+        "content": {
+          "multipart/form-data": { "schema": { "type": "object", "required": ["file"], "properties": { "file": { "type": "string", "format": "binary", "description": "The .hwp or .hwpx file (up to 15 MB)" } } } },
+          "application/json": { "schema": { "type": "object", "required": ["base64"], "properties": { "name": { "type": "string", "example": "notice.hwp" }, "base64": { "type": "string", "description": "The file, base64-encoded" } } } }
+        }
+      }
+    },
+    "responses": {
+      "Problem": { "description": "Error (RFC 9457 problem details).", "content": { "application/problem+json": { "schema": { "$ref": "#/components/schemas/Problem" } }, "application/json": { "schema": { "$ref": "#/components/schemas/Problem" } } } }
+    },
+    "schemas": {
+      "Flow": {
+        "type": "object", "required": ["schema", "steps"], "additionalProperties": true,
+        "description": "A saved flow (ttdu.flow/v1).",
+        "properties": {
+          "schema": { "type": "string", "enum": ["ttdu.flow/v1"] },
+          "name": { "type": "string" },
+          "vars": { "type": "array", "items": { "$ref": "#/components/schemas/FlowVar" } },
+          "steps": { "type": "array", "minItems": 1, "items": { "$ref": "#/components/schemas/FlowStep" } }
+        }
+      },
+      "FlowVar": { "type": "object", "required": ["key"], "additionalProperties": true, "properties": { "key": { "type": "string" }, "label": { "type": "string" }, "default": { "type": "string", "description": "\"today\" fills the run date (YYYYMMDD)" }, "pattern": { "type": "string" } } },
+      "FlowStep": {
+        "type": "object", "required": ["tool"], "additionalProperties": true,
+        "properties": {
+          "tool": { "type": "string", "example": "pdf.merge" },
+          "scope": { "type": "string", "enum": ["all", "each"], "description": "all = every file to the tool at once; each = one run per file" },
+          "options": { "type": "object", "additionalProperties": true },
+          "outName": { "type": "string", "description": "Output name template, e.g. \"{client}-merged\"" }
+        }
+      },
+      "FlowRunMultipart": {
+        "type": "object", "required": ["flow", "files"],
+        "properties": {
+          "flow": { "type": "string", "description": "The flow as a JSON string" },
+          "files": { "type": "array", "items": { "type": "string", "format": "binary" } },
+          "vars": { "type": "string", "description": "Values for the flow's vars, as a JSON object string, e.g. {\"client\":\"ACME\"}" }
+        }
+      },
+      "FlowRunJson": {
+        "type": "object", "required": ["flow", "files"],
+        "properties": {
+          "flow": { "$ref": "#/components/schemas/Flow" },
+          "files": { "type": "array", "items": { "$ref": "#/components/schemas/InputFile" } },
+          "vars": { "type": "object", "additionalProperties": { "type": "string" } }
+        }
+      },
+      "InputFile": { "type": "object", "required": ["name", "base64"], "properties": { "name": { "type": "string" }, "mime": { "type": "string" }, "base64": { "type": "string" } } },
+      "OutputFile": {
+        "type": "object", "required": ["name", "mime", "size", "sha256", "base64"],
+        "properties": { "name": { "type": "string" }, "mime": { "type": "string" }, "size": { "type": "integer" }, "sha256": { "type": "string" }, "base64": { "type": "string" } }
+      },
+      "StepState": { "type": "object", "additionalProperties": true, "properties": { "tool": { "type": "string" }, "state": { "type": "string" }, "items": { "type": "integer" } } },
+      "FlowRunResult": {
+        "type": "object", "required": ["ok", "outputs"],
+        "properties": {
+          "ok": { "type": "boolean" },
+          "steps": { "type": "array", "items": { "$ref": "#/components/schemas/StepState" } },
+          "notes": { "type": "array", "items": { "type": "object", "additionalProperties": true }, "description": "Remarks from steps, e.g. a masking step that found nothing in a file" },
+          "outputs": { "type": "array", "items": { "$ref": "#/components/schemas/OutputFile" } }
+        }
+      },
+      "HwpStats": { "type": "object", "additionalProperties": true, "properties": { "sections": { "type": "integer" }, "paragraphs": { "type": "integer" }, "tables": { "type": "integer" }, "cells": { "type": "integer" }, "chars": { "type": "integer" }, "pages": { "type": "integer" } } },
+      "HwpEngine": { "type": "object", "properties": { "name": { "type": "string" }, "version": { "type": "string" } } },
+      "HwpBlock": {
+        "type": "object", "required": ["type"], "additionalProperties": true,
+        "properties": {
+          "type": { "type": "string", "enum": ["paragraph", "table"] },
+          "section": { "type": "integer" },
+          "text": { "type": "string" },
+          "rows": { "type": "array", "items": { "type": "array", "items": { "type": "string" } } },
+          "cells": { "type": "array", "items": { "type": "object", "additionalProperties": true } },
+          "nested_in": { "type": "object", "nullable": true, "additionalProperties": true }
+        }
+      },
+      "HwpTextResult": {
+        "type": "object", "required": ["ok", "text", "blocks"],
+        "properties": { "ok": { "type": "boolean" }, "format": { "type": "string", "enum": ["hwp", "hwpx"] }, "stats": { "$ref": "#/components/schemas/HwpStats" }, "engine": { "$ref": "#/components/schemas/HwpEngine" }, "text": { "type": "string" }, "blocks": { "type": "array", "items": { "$ref": "#/components/schemas/HwpBlock" } } }
+      },
+      "HwpMarkdownResult": {
+        "type": "object", "required": ["ok", "markdown"],
+        "properties": { "ok": { "type": "boolean" }, "format": { "type": "string" }, "stats": { "$ref": "#/components/schemas/HwpStats" }, "engine": { "$ref": "#/components/schemas/HwpEngine" }, "markdown": { "type": "string" } }
+      },
+      "HwpDocxResult": {
+        "type": "object", "required": ["ok", "outputs"],
+        "properties": { "ok": { "type": "boolean" }, "format": { "type": "string" }, "stats": { "$ref": "#/components/schemas/HwpStats" }, "engine": { "$ref": "#/components/schemas/HwpEngine" }, "outputs": { "type": "array", "items": { "$ref": "#/components/schemas/OutputFile" } } }
+      },
+      "Problem": {
+        "type": "object", "required": ["title", "status"], "additionalProperties": true,
+        "properties": {
+          "type": { "type": "string" }, "title": { "type": "string" }, "status": { "type": "integer" }, "detail": { "type": "string" },
+          "code": { "type": "string", "description": "invalid_input, needs_input, unsupported, resource_limit, browser_only, ..." },
+          "step": { "type": "string", "nullable": true },
+          "details": { "type": "object", "additionalProperties": true }
+        }
+      }
+    }
+  }
+}

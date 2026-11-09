@@ -1,0 +1,13 @@
+{
+  "name": "ttdu-agent-tools",
+  "version": "0.1.0",
+  "description": "Vercel AI SDK and LangChain.js tools for the Tools That Don't Upload file flows and HWP/HWPX API.",
+  "license": "MIT",
+  "type": "module",
+  "exports": { "./ai": "./src/ai.mjs", "./langchain": "./src/langchain.mjs", "./core": "./src/core.mjs" },
+  "files": ["src", "README.md", "LICENSE"],
+  "engines": { "node": ">=18" },
+  "dependencies": { "toolsthatdontupload": "^0.1.0", "zod": "^4" },
+  "peerDependencies": { "ai": ">=5", "@langchain/core": ">=0.3" },
+  "peerDependenciesMeta": { "ai": { "optional": true }, "@langchain/core": { "optional": true } }
+}

@@ -1,0 +1,1 @@
+{ "flow_merge_sha256": "13ed0c41bb17956504f0980ea6bb14cabd83bcd9e739857c4cc1c5e5371062ab", "hwp_markdown_sha256": "2624b6a2e676e1684d99b7b01d8a4f8b028bfc838dbf97b7434b825583771192", "hwp_docx_sha256": "c0961cba792e9116d4742ea3d92bf0f0cea63891d80effbafc4f477db3bd76b3", "fixtures": { "merge": ["a.pdf", "b.pdf"], "hwp": "loan.hwpx" } }

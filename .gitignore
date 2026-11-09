@@ -1,0 +1,8 @@
+node_modules/
+dist/
+dist-py/
+.venv/
+__pycache__/
+*.egg-info/
+.ruff_cache/
+test/results/
