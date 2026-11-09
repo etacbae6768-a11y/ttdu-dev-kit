@@ -1,7 +1,7 @@
 name: publish-pypi
 # PyPI Trusted Publishing (OIDC, no stored token). Pending publishers on pypi.org:
 #   project toolsthatdontupload  and  ttdu-agent-tools  ->  owner etacbae6768-a11y, repo ttdu-dev-kit,
-#   workflow publish-pypi.yml, environment pypi
+#   workflow publish-pypi.yml, environment pypi (toolsthatdontupload) / pypi-agents (ttdu-agent-tools)
 on:
   workflow_dispatch:
     inputs:
@@ -29,7 +29,7 @@ jobs:
   publish:
     needs: build
     runs-on: ubuntu-latest
-    environment: pypi
+    environment: ${{ inputs.package == 'agents/python' && 'pypi-agents' || 'pypi' }}
     permissions:
       id-token: write
     steps:
