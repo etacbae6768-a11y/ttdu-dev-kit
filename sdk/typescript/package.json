@@ -6,13 +6,43 @@
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
-  "exports": { ".": { "types": "./dist/index.d.ts", "import": "./dist/index.js" } },
-  "files": ["dist", "README.md", "LICENSE"],
-  "engines": { "node": ">=18" },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
   "homepage": "https://toolsthatdontupload.com/docs/sdk/",
-  "keywords": ["hwp", "hwpx", "pdf", "flows", "toolsthatdontupload", "openapi"],
-  "devDependencies": { "typescript": "^5.9.0" },
-  "scripts": { "generate": "openapi-ts", "build": "tsc -p tsconfig.json" }
+  "keywords": [
+    "hwp",
+    "hwpx",
+    "pdf",
+    "flows",
+    "toolsthatdontupload",
+    "openapi"
+  ],
+  "devDependencies": {
+    "typescript": "^5.9.0"
+  },
+  "scripts": {
+    "generate": "openapi-ts",
+    "build": "tsc -p tsconfig.json"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/etacbae6768-a11y/ttdu-dev-kit.git",
+    "directory": "sdk/typescript"
+  },
+  "bugs": {
+    "url": "https://github.com/etacbae6768-a11y/ttdu-dev-kit/issues"
+  },
+  "author": "Park Jihoon (Tools That Don't Upload) <hello@toolsthatdontupload.com>"
 }
-
-
